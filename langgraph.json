@@ -1,0 +1,10 @@
+{
+  "$schema": "https://langgra.ph/schema.json",
+  "dependencies": [
+    "."
+  ],
+  "graphs": {
+    "research_agent": "src.agents.research:research_agent",
+    "dynamic_agent": "src.agents.dynamic_agent:dynamic_agent"
+  }
+}

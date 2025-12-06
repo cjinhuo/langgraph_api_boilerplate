@@ -1,0 +1,31 @@
+[project]
+name = "agent_research"
+version = "0.1.0"
+description = "Agent Research"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "bytedance-fornax>=1.0.3",
+    "bytedlogger>=0.15.2",
+    "ddgs>=0.1.0",
+    "ipykernel>=7.1.0",
+    "langchain>=1.1.0",
+    "langchain-openai>=1.1.0",
+    "langgraph-cli[inmem]>=0.4.7",
+    "pytest>=8.0.0",
+    "requests>=2.31.0",
+    "ruff>=0.14.4",
+    "volcengine-python-sdk[ark]>=4.0.34",
+    "python-dotenv>=1.0.0",
+    "langsmith>=0.4.49",
+    "fastapi>=0.121.3",
+    "uvicorn>=0.38.0",
+    "pymysql>=1.1.2",
+    "pandas>=2.3.3",
+    "matplotlib>=3.10.7",
+    "seaborn>=0.13.2",
+]
+
+[[tool.uv.index]]
+url = "https://bytedpypi.byted.org/simple/"
+default = true
