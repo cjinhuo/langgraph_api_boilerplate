@@ -6,7 +6,7 @@ from langgraph.prebuilt import create_react_agent
 from src.state import State, init_agent_state
 from src.prompts.template import apply_prompt_template
 from src.tools.search import search_web
-from src.tools.read_url import read_url
+from src.tools.read_url import read_url_by_markdown
 from src.llms.fz import fz_k2_chat_model
 
 # Initialize LLM
@@ -36,7 +36,7 @@ def get_tools_by_names(tool_names: List[str]):
     if "search_web" in tool_names:
         tools.append(search_web)
     if "read_url" in tool_names:
-        tools.append(read_url)
+        tools.append(read_url_by_markdown)
 
     # Always add update_progress
     tools.append(update_progress)

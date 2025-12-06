@@ -24,6 +24,7 @@ dependencies = [
     "pandas>=2.3.3",
     "matplotlib>=3.10.7",
     "seaborn>=0.13.2",
+    "trafilatura>=2.0.0",
 ]
 
 [[tool.uv.index]]

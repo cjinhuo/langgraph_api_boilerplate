@@ -11,12 +11,6 @@ from langchain_core.tracers import LangChainTracer
 LANGSMITH_ENDPOINT = "https://api.smith.langchain.com"
 LANGSMITH_PROJECT = os.getenv("LANGSMITH_PROJECT", "default-project")
 
-# 使用环境变量设置 LangSmith:
-# export LANGSMITH_TRACING = true
-# export LANGSMITH_ENDPOINT = https://api.smith.langchain.com
-# export LANGSMITH_API_KEY = your-api-key-here
-# export LANGSMITH_PROJECT = your-project-name
-
 
 def setup_langsmith(
     api_key: Optional[str] = None,
