@@ -25,6 +25,8 @@ class State(MessagesState):
     is_completed: bool  # Whether the workflow is completed
     OUTPUT_DIR: Optional[str]  # Output directory for generated files
 
+    user_input_optimized: Optional[str]
+
 
 def init_agent_state(locale: str = "en-US"):
     state: State = {
@@ -40,5 +42,6 @@ def init_agent_state(locale: str = "en-US"):
         "iteration_count": {},
         "is_completed": False,
         "OUTPUT_DIR": None,
+        "user_input_optimized": None,
     }
     return state

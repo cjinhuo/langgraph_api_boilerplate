@@ -10,52 +10,85 @@ from langchain.agents.middleware import HumanInTheLoopMiddleware
 from langgraph.types import Command
 from src.utils.stream import handle_stream_mode_values
 from src.prompts.template import apply_prompt_template
-
-
+from src.state import State
+from langgraph.graph import StateGraph
+from langgraph.graph import START, END
+from langchain_core.output_parsers import JsonOutputParser
 # 初始化 LangSmith（如果配置了环境变量会自动启用）
 setup_langsmith()
 
 memory = InMemorySaver()
 
 
-research_agent = create_agent(
-    model=fz_k2_chat_model,
-    tools=[search_web, read_url_by_markdown],  # 添加 todo list 中间件
-    middleware=[
-        TodoListMiddleware(),
-        # HumanInTheLoopMiddleware(
-        #     interrupt_on={
-        #         "search_web": False,  # 对 search_web 的所有调用进行人工审批
-        #         "read_url": False,  # 对 read_url 的所有调用进行人工审批
-        #     },
-        #     description_prefix="工具执行待审批",
-        # ),
-    ],
-    system_prompt=apply_prompt_template("research_prompt", {}),
-    # checkpointer=memory,  # HumanInTheLoopMiddleware 需要 checkpointer
-)
+def research_node(state: State):
+    research_agent = create_agent(
+        model=fz_k2_chat_model,
+        tools=[search_web, read_url_by_markdown],
+        middleware=[],
+        system_prompt=apply_prompt_template("research_prompt", {}),
+    )
+    user_input_optimized = state.get("user_input_optimized", "")
+    result = research_agent.invoke(
+        {"messages": [HumanMessage(content=user_input_optimized)]}
+    )
+    print('research_node result', result)
+    return {
+        "messages": result["messages"]
+    }
 
+
+def coordinator_node(state: State):
+    coordinator_agent = create_agent(
+        model=fz_k2_chat_model,
+        tools=[],
+        middleware=[],
+        system_prompt=apply_prompt_template("research_coordinator", {}),
+    )
+    # 获取用户查询
+    user_query = ""
+    if state.get("messages"):
+        first_msg = state["messages"][0]
+        if isinstance(first_msg, dict):
+            user_query = first_msg.get("content", "")
+        elif hasattr(first_msg, "content"):
+            user_query = first_msg.content
+    result = coordinator_agent.invoke({
+        "messages": [
+            HumanMessage(content=user_query)
+        ]
+    })
+    parser = JsonOutputParser()
+    print('coordinator_node result', result)
+    # 从 result 的 messages 中提取最后一个 AI 消息的内容
+    last_message = result["messages"][-1]
+    content = last_message.content if isinstance(
+        last_message.content, str) else str(last_message.content)
+    user_input_optimized = parser.parse(
+        text=content).get("user_input_optimized", "")
+    return {
+        "user_input_optimized": user_input_optimized,
+        "messages": result["messages"]
+    }
+
+
+def create_workflow():
+    workflow = StateGraph(State)
+
+    workflow.add_node("coordinator", coordinator_node)
+    workflow.add_node("research", research_node)
+
+    workflow.add_edge(START, "coordinator")
+    workflow.add_edge("coordinator", "research")
+    workflow.add_edge("research", END)
+
+    return workflow.compile()
+
+
+research_agent = create_workflow()
 
 if __name__ == "__main__":
     print("\n开始调用 agent (流式输出)...\n")
     print("=" * 80)
-
-    research_agent = create_agent(
-        model=fz_k2_chat_model,
-        tools=[search_web, read_url_by_markdown],  # 添加 todo list 中间件
-        middleware=[
-            TodoListMiddleware(),
-            HumanInTheLoopMiddleware(
-                interrupt_on={
-                    "search_web": False,
-                    "read_url": False,
-                },
-                description_prefix="工具执行待审批",
-            ),
-        ],
-        system_prompt="You are a helpful research assistant.",
-        checkpointer=memory,  # HumanInTheLoopMiddleware 需要 checkpointer
-    )
     # 获取 LangSmith 回调（如果已配置）
     callbacks = get_langsmith_callbacks()
 
@@ -71,7 +104,7 @@ if __name__ == "__main__":
     # 使用流式输出，使用 values 模式以便检测中断
     input_data = {
         "messages": [
-            HumanMessage(content="Research openai and Google models")
+            HumanMessage(content="最新黄金价格")
         ]
     }
 
