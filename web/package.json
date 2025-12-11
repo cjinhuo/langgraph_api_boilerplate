@@ -1,22 +1,32 @@
 {
   "name": "web",
-  "version": "1.0.0",
   "private": true,
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "rsbuild build",
-    "dev": "rsbuild dev --open",
-    "preview": "rsbuild preview"
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "format": "biome format --write .",
+    "lint": "biome lint .",
+    "check": "biome check .",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^19.2.1",
-    "react-dom": "^19.2.1"
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
   },
   "devDependencies": {
-    "@rsbuild/core": "^1.6.12",
-    "@rsbuild/plugin-react": "^1.4.2",
-    "@types/react": "^19.2.7",
+    "@biomejs/biome": "^1.9.4",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
-    "typescript": "^5.9.3"
+    "@vitejs/plugin-react": "^5.1.1",
+    "typescript": "~5.9.3",
+    "vite": "npm:rolldown-vite@7.2.5"
+  },
+  "pnpm": {
+    "overrides": {
+      "vite": "npm:rolldown-vite@7.2.5"
+    }
   }
 }
